@@ -153,7 +153,7 @@ def test_filters_and_config():
     lidar, view = parse_config({"laser_ip": "10.0.0.8", "change_param": True, "spin_frequency_hz": 20})
     assert lidar.address == "10.0.0.8"
     assert lidar.spin_frequency_hz == 20
-    assert view["forward_axis"] == "x"
+    assert view["forward_axis"] == "y"
     with pytest.raises(ValueError):
         parse_config({"change_param": True, "angle_increment": "0.010"})
     with pytest.raises(ValueError):

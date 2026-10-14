@@ -51,7 +51,7 @@ Add a local module whose executable is `run.sh`, then add a camera:
 | `spin_frequency_hz` | `10` | `10` or `20`. Used only when `change_param` is true. |
 | `angle_increment` | `0.050` | `0.025`, `0.050`, `0.100`, `0.250`, or `0.500` degrees. `0.025` forces 10 Hz, matching the vendor command. |
 | `noise_filter_level` | `1` | `0` to `3` |
-| `forward_axis` | `x` | `x` matches the ROS driver with `y_direction` false. `y` matches `y_direction` true. |
+| `forward_axis` | `y` | `y` puts the lidar's forward direction on +Y, which is Viam's forward axis. `x` matches the ROS driver with `y_direction` false. |
 | `angle_offset_deg` | `0` | Extra rotation applied after `forward_axis` |
 | `start_angle_deg`, `end_angle_deg` | `0`, `360` | Keep returns whose sensor-cover angle is inside this window |
 | `min_range_mm`, `max_range_mm` | `50`, `50000` | Returns outside this span are omitted |
@@ -64,9 +64,8 @@ Add a local module whose executable is `run.sh`, then add a camera:
 is running. `get_status` reports connection state, scan age, point count, and
 the three area bits.
 
-Points are in the lidar frame. With `forward_axis` `x`, sensor-cover angle 20
-degrees (the first return) is at -160 degrees in the standard mathematical
-frame, which is the ROS driver's x-forward scan.
+Points are in the lidar frame. With the default `forward_axis` `y`, the center
+of the scan (sensor-cover angle 180 degrees) lies on +Y.
 
 The protocol and filter behavior follow the Hinson ROS driver, BSD-3-Clause,
 Copyright (c) 2022, HINSON. This module is Apache-2.0.

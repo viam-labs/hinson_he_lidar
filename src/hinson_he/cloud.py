@@ -30,10 +30,10 @@ def project_points(
 ) -> list[tuple[float, float, float, int]]:
     """Return x, y, z millimeters and intensity.
 
-    Sensor-cover angle 0 is the mark on the lidar lid. The published ROS driver
-    places that mark 180 degrees from +X, or 90 degrees from +Y when
-    ``forward_axis`` is ``y``. Coordinates are millimeters, matching the Viam
-    RPLidar camera.
+    Sensor-cover angle 0 is the mark on the lidar lid. The center of the scan
+    is the lidar's forward direction. ``forward_axis`` ``y`` places that
+    direction on +Y, which is Viam's forward axis. ``x`` matches the ROS
+    driver with ``y_direction`` false. Coordinates are millimeters.
     """
     count = len(scan.distances_mm)
     axis_offset = -180.0 if forward_axis == "x" else -90.0

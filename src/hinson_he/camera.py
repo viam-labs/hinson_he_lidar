@@ -134,7 +134,7 @@ class HinsonHE(Camera, EasyResource):
 
 def _default_view() -> dict[str, Any]:
     return {
-        "forward_axis": "x",
+        "forward_axis": "y",
         "angle_offset_deg": 0.0,
         "start_angle_deg": 0.0,
         "end_angle_deg": 360.0,
@@ -161,7 +161,7 @@ def parse_config(attributes: Mapping[str, Any]) -> tuple[LidarConfig, dict[str, 
             raise ValueError(f"angle_increment must be one of {', '.join(ANGLE_INCREMENTS)}")
         if noise < 0 or noise > 3:
             raise ValueError("noise_filter_level must be from 0 to 3")
-    forward = _string(attributes, "forward_axis", "x").lower()
+    forward = _string(attributes, "forward_axis", "y").lower()
     if forward not in ("x", "y"):
         raise ValueError("forward_axis must be 'x' or 'y'")
     start_angle = _float(attributes, "start_angle_deg", 0.0)
