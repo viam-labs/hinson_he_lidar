@@ -1,0 +1,21 @@
+{
+  "module_id": "viam-labs:hinson-he-lidar",
+  "visibility": "public",
+  "url": "https://github.com/viam-labs/hinson_he_lidar",
+  "description": "Hinson HE series lidar as a Viam camera. Returns a 2D point cloud and a top-down preview image.",
+  "models": [
+    {
+      "api": "rdk:component:camera",
+      "model": "viam-labs:camera:hinson-he",
+      "markdown_link": "README.md#configure",
+      "short_description": "Hinson HE lidar over TCP or UDP"
+    }
+  ],
+  "entrypoint": "run.sh",
+  "build": {
+    "setup": "./setup.sh",
+    "build": "./build.sh",
+    "path": "dist/archive.tar.gz",
+    "arch": ["linux/amd64", "linux/arm64"]
+  }
+}
