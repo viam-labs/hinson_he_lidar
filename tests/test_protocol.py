@@ -135,7 +135,7 @@ def test_pcd_binary_round_trip():
     raw = encode_pcd([(10.0, -20.0, 0.0, 9), (1.5, 2.5, 3.5, 0)])
     header, payload = raw.split(b"DATA binary\n", 1)
     assert b"POINTS 2" in header
-    assert struct.unpack("<ffffff", payload) == pytest.approx((10.0, -20.0, 0.0, 1.5, 2.5, 3.5))
+    assert struct.unpack("<ffffff", payload) == pytest.approx((0.01, -0.02, 0.0, 0.0015, 0.0025, 0.0035))
 
 
 def test_filters_and_config():

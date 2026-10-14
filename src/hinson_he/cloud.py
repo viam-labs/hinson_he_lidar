@@ -52,6 +52,11 @@ def project_points(
 
 
 def encode_pcd(points: list[tuple[float, float, float, int]]) -> bytes:
+    """Encode points as binary PCD.
+
+    ``points`` are millimeters. Viam's PCD reader treats file coordinates as
+    meters and converts them back to millimeters, so the file stores meters.
+    """
     header = (
         "# .PCD v.7 - Point Cloud Data file format\n"
         "VERSION .7\n"
@@ -66,8 +71,8 @@ def encode_pcd(points: list[tuple[float, float, float, int]]) -> bytes:
         "DATA binary\n"
     ).encode("ascii")
     payload = bytearray()
-    for x, y, z, _intensity in points:
-        payload += struct.pack("<fff", x, y, z)
+    for x_mm, y_mm, z_mm, _intensity in points:
+        payload += struct.pack("<fff", x_mm / 1000.0, y_mm / 1000.0, z_mm / 1000.0)
     return header + payload
 
 

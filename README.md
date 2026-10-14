@@ -9,9 +9,10 @@ The module is Python. The vendor driver is C++, but it is built as a ROS node
 on Boost.Asio. The wire format is small enough to implement directly, and the
 Viam Python SDK is the straightforward way to ship a camera model.
 
-`GetPointCloud` returns a binary PCD in millimeters, in the same units as the
-Viam RPLidar camera. `GetImages` returns a top-down PNG of that scan so the
-camera card in the Viam app has a picture.
+`GetPointCloud` returns a binary PCD. Coordinates in the file are meters, which
+is what the Viam RDK expects before it converts them to millimeters. `GetImages`
+returns a top-down PNG of that scan so the camera card in the Viam app has a
+picture.
 
 ## Configure
 
