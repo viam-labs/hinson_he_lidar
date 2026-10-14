@@ -39,7 +39,7 @@ Add a local module whose executable is `run.sh`, then add a camera:
 }
 ```
 
-`run.sh` installs `requirements.txt` into `deps/` on first launch.
+`run.sh` installs `requirements.txt` into `deps/` on first launch. If the machine's Python has no pip, the script downloads `get-pip.py` into that directory. It does not need `python3-pip` installed on the machine.
 
 | Attribute | Default | Description |
 | --- | --- | --- |
