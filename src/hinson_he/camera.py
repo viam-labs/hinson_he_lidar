@@ -5,6 +5,7 @@ from __future__ import annotations
 import threading
 from typing import Any, Mapping, Sequence
 
+from google.protobuf.timestamp_pb2 import Timestamp
 from viam.components.camera import Camera
 from viam.media.video import CameraMimeType, NamedImage
 from viam.proto.app.robot import ComponentConfig
@@ -13,7 +14,6 @@ from viam.proto.component.camera import GetPropertiesResponse
 from viam.resource.base import ResourceBase
 from viam.resource.easy_resource import EasyResource
 from viam.utils import ValueTypes, struct_to_dict
-from google.protobuf.timestamp_pb2 import Timestamp
 
 from hinson_he.client import HinsonClient, LidarConfig
 from hinson_he.cloud import PCD_MIME, encode_pcd, project_points, render_preview
@@ -32,17 +32,23 @@ class HinsonHE(Camera, EasyResource):
         self._view = _default_view()
 
     @classmethod
-    def new(cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
+    def new(
+        cls, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]
+    ):
         camera = super().new(config, dependencies)
         camera.reconfigure(config, dependencies)
         return camera
 
     @classmethod
-    def validate_config(cls, config: ComponentConfig) -> tuple[Sequence[str], Sequence[str]]:
+    def validate_config(
+        cls, config: ComponentConfig
+    ) -> tuple[Sequence[str], Sequence[str]]:
         parse_config(struct_to_dict(config.attributes))
         return [], []
 
-    def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
+    def reconfigure(
+        self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]
+    ):
         lidar_config, view = parse_config(struct_to_dict(config.attributes))
         with self._lock:
             previous = self._client
@@ -55,7 +61,11 @@ class HinsonHE(Camera, EasyResource):
             self._view = view
 
     async def get_point_cloud(
-        self, *, extra: dict[str, Any] | None = None, timeout: float | None = None, **kwargs
+        self,
+        *,
+        extra: dict[str, Any] | None = None,
+        timeout: float | None = None,
+        **kwargs,
     ) -> tuple[bytes, str]:
         scan, view = self._fresh_scan()
         points = project_points(scan, **view)
@@ -76,9 +86,15 @@ class HinsonHE(Camera, EasyResource):
         png = render_preview(points, max_range_mm=view["max_range_mm"])
         return [NamedImage(self.name, png, CameraMimeType.PNG)], _captured_now()
 
-    async def get_properties(self, *, timeout: float | None = None, **kwargs) -> Camera.Properties:
+    async def get_properties(
+        self, *, timeout: float | None = None, **kwargs
+    ) -> Camera.Properties:
         with self._lock:
-            rate = float(self._client.config.spin_frequency_hz) if self._client is not None else 0.0
+            rate = (
+                float(self._client.config.spin_frequency_hz)
+                if self._client is not None
+                else 0.0
+            )
         return GetPropertiesResponse(
             supports_pcd=True,
             frame_rate=rate,
@@ -104,7 +120,9 @@ class HinsonHE(Camera, EasyResource):
         status["command"] = dict(command)
         return status
 
-    async def get_status(self, *, timeout: float | None = None, **kwargs) -> Mapping[str, ValueTypes]:
+    async def get_status(
+        self, *, timeout: float | None = None, **kwargs
+    ) -> Mapping[str, ValueTypes]:
         return self._require_client().status()
 
     async def close(self):
@@ -158,7 +176,9 @@ def parse_config(attributes: Mapping[str, Any]) -> tuple[LidarConfig, dict[str, 
         if spin not in (10, 20):
             raise ValueError("spin_frequency_hz must be 10 or 20")
         if increment not in ANGLE_INCREMENTS:
-            raise ValueError(f"angle_increment must be one of {', '.join(ANGLE_INCREMENTS)}")
+            raise ValueError(
+                f"angle_increment must be one of {', '.join(ANGLE_INCREMENTS)}"
+            )
         if noise < 0 or noise > 3:
             raise ValueError("noise_filter_level must be from 0 to 3")
     forward = _string(attributes, "forward_axis", "y").lower()
@@ -167,7 +187,9 @@ def parse_config(attributes: Mapping[str, Any]) -> tuple[LidarConfig, dict[str, 
     start_angle = _float(attributes, "start_angle_deg", 0.0)
     end_angle = _float(attributes, "end_angle_deg", 360.0)
     if start_angle < 0 or end_angle > 360 or start_angle > end_angle:
-        raise ValueError("start_angle_deg and end_angle_deg must satisfy 0 <= start <= end <= 360")
+        raise ValueError(
+            "start_angle_deg and end_angle_deg must satisfy 0 <= start <= end <= 360"
+        )
     min_range = _float(attributes, "min_range_mm", 50.0)
     max_range = _float(attributes, "max_range_mm", 50000.0)
     if min_range < 0 or max_range <= min_range:
@@ -184,13 +206,21 @@ def parse_config(attributes: Mapping[str, Any]) -> tuple[LidarConfig, dict[str, 
         angle_increment=increment,
         noise_filter_level=noise,
         shadows_filter_level=shadows_level,
-        shadows_filter_min_angle_deg=_float(attributes, "shadows_filter_min_angle_deg", 5.0),
-        shadows_filter_max_angle_deg=_float(attributes, "shadows_filter_max_angle_deg", 175.0),
+        shadows_filter_min_angle_deg=_float(
+            attributes, "shadows_filter_min_angle_deg", 5.0
+        ),
+        shadows_filter_max_angle_deg=_float(
+            attributes, "shadows_filter_max_angle_deg", 175.0
+        ),
         shadows_filter_window=_int(attributes, "shadows_filter_window", 2),
-        shadows_filter_traverse_step=max(_int(attributes, "shadows_filter_traverse_step", 1), 1),
+        shadows_filter_traverse_step=max(
+            _int(attributes, "shadows_filter_traverse_step", 1), 1
+        ),
         disturb_filter_enable=_bool(attributes, "disturb_filter_enable", False),
         disturb_filter_threshold_mm=_int(attributes, "disturb_filter_threshold_mm", 80),
-        disturb_filter_point_num=max(_int(attributes, "disturb_filter_point_num", 8), 1),
+        disturb_filter_point_num=max(
+            _int(attributes, "disturb_filter_point_num", 8), 1
+        ),
         block_enable=_bool(attributes, "block_enable", False),
         area_channel=_int(attributes, "area_channel", 0),
     )

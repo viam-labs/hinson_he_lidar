@@ -109,7 +109,9 @@ def build_param_command(
     return bytes(command)
 
 
-def build_area_command(*, channel: int = 0, mode: int = 1, channel_group: int = 2) -> bytes:
+def build_area_command(
+    *, channel: int = 0, mode: int = 1, channel_group: int = 2
+) -> bytes:
     """Eighteen-byte obstacle-area request."""
     if channel < 0 or channel > 63:
         channel = 0
@@ -183,7 +185,9 @@ def shadows_filter(
     return filtered
 
 
-def disturb_filter(distances_mm: list[int], *, enabled: bool, threshold_mm: int, point_num: int) -> list[int]:
+def disturb_filter(
+    distances_mm: list[int], *, enabled: bool, threshold_mm: int, point_num: int
+) -> list[int]:
     """Drop short runs of points whose neighbor-to-neighbor jump exceeds a threshold."""
     if not enabled or not distances_mm:
         return distances_mm
@@ -240,9 +244,14 @@ class ScanParser:
                 continue
             if len(self._buffer) < HEADER_SIZE:
                 break
-            start_angle, end_angle, data_size, data_position, measure_size, timestamp = struct.unpack_from(
-                ">HHHHHH", self._buffer, 4
-            )
+            (
+                start_angle,
+                end_angle,
+                data_size,
+                data_position,
+                measure_size,
+                timestamp,
+            ) = struct.unpack_from(">HHHHHH", self._buffer, 4)
             if data_size > measure_size:
                 data_size = measure_size
             body_size = HEADER_SIZE + data_size * 4
@@ -314,7 +323,11 @@ class ScanParser:
                 continue
             self._distances[index] = distance
             self._intensities[index] = intensity
-        if end_angle == SCAN_END_DEG and data_position == measure_size and self._revolution_open:
+        if (
+            end_angle == SCAN_END_DEG
+            and data_position == measure_size
+            and self._revolution_open
+        ):
             if timestamp >= self._start_time_us:
                 elapsed = timestamp - self._start_time_us
             else:
@@ -326,4 +339,10 @@ class ScanParser:
 
     def _begin_index(self, start_angle: int, data_position: int, data_size: int) -> int:
         assert self._angle_increment is not None
-        return int(round((start_angle - SCAN_START_DEG) / self._angle_increment + data_position - data_size))
+        return int(
+            round(
+                (start_angle - SCAN_START_DEG) / self._angle_increment
+                + data_position
+                - data_size
+            )
+        )
