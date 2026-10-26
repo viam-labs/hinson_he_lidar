@@ -5,6 +5,7 @@ from __future__ import annotations
 import threading
 from typing import Any, Mapping, Sequence
 
+from google.protobuf.timestamp_pb2 import Timestamp
 from viam.components.camera import Camera
 from viam.media.video import CameraMimeType, NamedImage
 from viam.proto.app.robot import ComponentConfig
@@ -13,7 +14,6 @@ from viam.proto.component.camera import GetPropertiesResponse
 from viam.resource.base import ResourceBase
 from viam.resource.easy_resource import EasyResource
 from viam.utils import ValueTypes, struct_to_dict
-from google.protobuf.timestamp_pb2 import Timestamp
 
 from hinson_he.client import HinsonClient, LidarConfig
 from hinson_he.cloud import PCD_MIME, encode_pcd, project_points, render_preview
