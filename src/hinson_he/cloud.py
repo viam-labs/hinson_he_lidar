@@ -40,20 +40,14 @@ def project_points(
     points: list[tuple[float, float, float, int]] = []
     intensities = scan.intensities or [0] * count
     for index, distance in enumerate(scan.distances_mm):
-        if (
-            distance < min_range_mm
-            or distance > max_range_mm
-            or distance > MAX_DISTANCE_MM
-        ):
+        if distance < min_range_mm or distance > max_range_mm or distance > MAX_DISTANCE_MM:
             continue
         angle = sensor_angle_deg(index, count)
         if angle < start_angle_deg or angle > end_angle_deg:
             continue
         theta = math.radians(angle + axis_offset + angle_offset_deg)
         intensity = intensities[index] if index < len(intensities) else 0
-        points.append(
-            (distance * math.cos(theta), distance * math.sin(theta), 0.0, intensity)
-        )
+        points.append((distance * math.cos(theta), distance * math.sin(theta), 0.0, intensity))
     return points
 
 

@@ -18,23 +18,11 @@ from hinson_he.protocol import (
 )
 
 
-def range_packet(
-    start, end, measure_size, data_position, distances, intensities, timestamp=0
-):
+def range_packet(start, end, measure_size, data_position, distances, intensities, timestamp=0):
     data_size = len(distances)
     header = bytearray(16)
     header[0:4] = b"HISN"
-    struct.pack_into(
-        ">HHHHHH",
-        header,
-        4,
-        start,
-        end,
-        data_size,
-        data_position,
-        measure_size,
-        timestamp,
-    )
+    struct.pack_into(">HHHHHH", header, 4, start, end, data_size, data_position, measure_size, timestamp)
     body = bytearray()
     for distance, intensity in zip(distances, intensities):
         body += struct.pack("<HH", distance, intensity)
@@ -43,12 +31,8 @@ def range_packet(
 
 def eight_point_scan():
     """Two sectors at 40 degrees per point, eight points across 320 degrees."""
-    first = range_packet(
-        20, 180, 4, 4, [1000, 2000, 0, 60000], [10, 20, 30, 40], timestamp=100
-    )
-    second = range_packet(
-        180, 340, 4, 4, [1500, 49, 50000, 3000], [11, 12, 13, 14], timestamp=900
-    )
+    first = range_packet(20, 180, 4, 4, [1000, 2000, 0, 60000], [10, 20, 30, 40], timestamp=100)
+    second = range_packet(180, 340, 4, 4, [1500, 49, 50000, 3000], [11, 12, 13, 14], timestamp=900)
     parser = ScanParser()
     assert parser.feed(b"\x00\x01" + first).scans == []
     scans = parser.feed(second).scans
@@ -60,9 +44,7 @@ def eight_point_scan():
 
 
 def test_crc_and_param_command_layout():
-    command = build_param_command(
-        spin_frequency_hz=20, angle_increment="0.050", noise_filter_level=1
-    )
+    command = build_param_command(spin_frequency_hz=20, angle_increment="0.050", noise_filter_level=1)
     assert command[:5] == b"SCtrl"
     assert command[7] == 0x01
     assert command[8] == 0x01
@@ -70,9 +52,7 @@ def test_crc_and_param_command_layout():
     assert command[10] == crc16(command[:10]) & 0xFF
     assert command[11] == (crc16(command[:10]) >> 8) & 0xFF
 
-    fine = build_param_command(
-        spin_frequency_hz=20, angle_increment="0.025", noise_filter_level=2
-    )
+    fine = build_param_command(spin_frequency_hz=20, angle_increment="0.025", noise_filter_level=2)
     assert fine[7] == 0x00
     assert fine[8] == 0x00
     assert fine[9] == 0x02
@@ -155,37 +135,22 @@ def test_pcd_binary_round_trip():
     raw = encode_pcd([(10.0, -20.0, 0.0, 9), (1.5, 2.5, 3.5, 0)])
     header, payload = raw.split(b"DATA binary\n", 1)
     assert b"POINTS 2" in header
-    assert struct.unpack("<ffffff", payload) == pytest.approx(
-        (0.01, -0.02, 0.0, 0.0015, 0.0025, 0.0035)
-    )
+    assert struct.unpack("<ffffff", payload) == pytest.approx((0.01, -0.02, 0.0, 0.0015, 0.0025, 0.0035))
 
 
 def test_filters_and_config():
-    untouched = shadows_filter(
-        [100, 200, 300],
-        level=0,
-        min_angle_deg=5,
-        max_angle_deg=175,
-        window=2,
-        traverse_step=1,
-    )
+    untouched = shadows_filter([100, 200, 300], level=0, min_angle_deg=5, max_angle_deg=175, window=2, traverse_step=1)
     assert untouched == [100, 200, 300]
 
     spiked = [1000] * 20
     spiked[10] = 100
-    filtered = shadows_filter(
-        spiked, level=1, min_angle_deg=5, max_angle_deg=175, window=1, traverse_step=1
-    )
+    filtered = shadows_filter(spiked, level=1, min_angle_deg=5, max_angle_deg=175, window=1, traverse_step=1)
     assert MAX_DISTANCE_MM + 1000 in filtered
 
-    disturbed = disturb_filter(
-        [1000, 1000, 2000, 1000, 1000], enabled=True, threshold_mm=80, point_num=8
-    )
+    disturbed = disturb_filter([1000, 1000, 2000, 1000, 1000], enabled=True, threshold_mm=80, point_num=8)
     assert disturbed[2] == MAX_DISTANCE_MM + 1000
 
-    lidar, view = parse_config(
-        {"laser_ip": "10.0.0.8", "change_param": True, "spin_frequency_hz": 20}
-    )
+    lidar, view = parse_config({"laser_ip": "10.0.0.8", "change_param": True, "spin_frequency_hz": 20})
     assert lidar.address == "10.0.0.8"
     assert lidar.spin_frequency_hz == 20
     assert view["forward_axis"] == "y"
